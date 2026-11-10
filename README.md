@@ -86,6 +86,7 @@ npm install
 npx playwright install --with-deps chromium
 cp .env.example .env     # fill BASE_URL, roles and credentials
 npm run typecheck
+npm run validate        # offline: YAML schema, data sets, traceability headers
 npm test                 # npm run test:smoke | test:data | report
 ```
 
@@ -103,6 +104,9 @@ After every Playwright upgrade: `npm run agents:drift`.
 3. Replace the example expense page object, spec, data and API endpoints with your first real scope.
 
 ## CI
+
+`.github/workflows/validate.yml` (GitHub Actions) runs on every PR without an Appian environment:
+type-check, `npm run validate`, test discovery (`playwright test --list`) and `npm run agents:drift`.
 
 `azure-pipelines.yml` maps the variable group `e2e-secrets` (`BASE_URL`, `APPIAN_ROLES`,
 `APPIAN_<ROLE>_USERNAME/PASSWORD`, `APPIAN_DATE_FORMAT`, `APPIAN_API_KEY`) into the test step and
