@@ -19,6 +19,7 @@ Playwright + TypeScript E2E tests for an **Appian** low-code application.
 
 ## Commands
 - Type-check: `npx tsc --noEmit`
+- Validate test cases, data and spec headers (offline, runs in CI on every PR): `npm run validate`
 - Run one spec: `npx playwright test <path> --project=chromium`
 - Stability: `npx playwright test <path> --project=chromium --repeat-each=3`
 - Agent drift after a Playwright upgrade: `npm run agents:drift`

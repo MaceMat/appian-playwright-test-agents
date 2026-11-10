@@ -1,0 +1,39 @@
+# Offline checks for agent-written artifacts – no Appian environment, browser or secrets needed.
+# Runs on every PR and push to main; the full E2E run stays in azure-pipelines.yml.
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test cases, data and traceability headers
+        run: npm run validate
+
+      - name: Specs load (test discovery only)
+        # Dummy values: --list imports every spec (loadData, fixtures) without opening a browser.
+        run: npx playwright test --list
+        env:
+          BASE_URL: https://appian.invalid
+          APPIAN_ROLES: submitter,approver
+
+      - name: Agent tools still exist in the Playwright test MCP server
+        run: npm run agents:drift
