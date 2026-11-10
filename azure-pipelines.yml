@@ -1,0 +1,57 @@
+# Azure DevOps pipeline. Create a variable group "e2e-secrets" (or pipeline variables) with
+# BASE_URL, APPIAN_ROLES, APPIAN_<ROLE>_USERNAME / _PASSWORD per role, APPIAN_DATE_FORMAT
+# and optionally APPIAN_API_KEY (mark passwords and the API key as secret).
+trigger:
+  branches:
+    include: [main]
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: e2e-secrets
+  - name: CI
+    value: 'true'
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '22.x'
+    displayName: Use Node 22
+
+  - script: npm ci
+    displayName: Install dependencies
+
+  - script: npx playwright install --with-deps chromium
+    displayName: Install Playwright browsers
+
+  - script: npx tsc --noEmit
+    displayName: Type-check
+
+  # Secret variables are NOT exposed automatically — map them explicitly.
+  - script: npx playwright test
+    displayName: Run Playwright tests
+    env:
+      BASE_URL: $(BASE_URL)
+      APPIAN_ROLES: $(APPIAN_ROLES)
+      APPIAN_DATE_FORMAT: $(APPIAN_DATE_FORMAT)
+      APPIAN_SUBMITTER_USERNAME: $(APPIAN_SUBMITTER_USERNAME)
+      APPIAN_SUBMITTER_PASSWORD: $(APPIAN_SUBMITTER_PASSWORD)
+      APPIAN_APPROVER_USERNAME: $(APPIAN_APPROVER_USERNAME)
+      APPIAN_APPROVER_PASSWORD: $(APPIAN_APPROVER_PASSWORD)
+      APPIAN_API_KEY: $(APPIAN_API_KEY)
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: test-results/junit.xml
+      testRunTitle: Playwright E2E
+    displayName: Publish test results
+
+  - task: PublishPipelineArtifact@1
+    condition: succeededOrFailed()
+    inputs:
+      targetPath: playwright-report
+      artifact: playwright-report
+    displayName: Publish HTML report

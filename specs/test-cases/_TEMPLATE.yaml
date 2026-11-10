@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=./test-cases.schema.json
+# Example output of the appian-test-designer agent (also used by the reference spec).
+scope: submit-expense
+analysis: specs/analysis/submit-expense.md
+dataFile: test-data/submit-expense.json
+
+testCases:
+  - id: EXP-TC01
+    adoId: null
+    title: Submitter can submit a valid expense request
+    priority: P1
+    tags: ['@smoke', '@data-driven']
+    role: submitter
+    covers: [EXP-S01, EXP-S02]
+    dataSet: validExpenses
+    preconditions:
+      - description: Submitter has access to the Expenses site
+        setup: existing
+    steps:
+      - type: Given
+        action: The submitter opens the "New Expense" action on the Expenses site
+        expected: Form "New Expense" is displayed
+      - type: When
+        action: Fills Description={{row.description}}, Category={{row.category}}, Amount={{row.amount}}, Expense Date={{row.expenseDate}}
+      - type: And
+        action: Clicks "Submit"
+      - type: Then
+        action: Confirmation is shown
+        expected: Message contains {{row.expectedMessage}}
+
+  - id: EXP-TC02
+    adoId: null
+    title: Invalid expense input is rejected with a validation message
+    priority: P2
+    tags: ['@regression', '@data-driven', '@negative']
+    role: submitter
+    covers: [EXP-S05, EXP-S06, EXP-S07]
+    dataSet: invalidExpenses
+    steps:
+      - type: Given
+        action: The submitter opens the "New Expense" action on the Expenses site
+      - type: When
+        action: Fills the form with {{row.*}} and clicks "Submit"
+      - type: Then
+        action: Validation message is shown
+        expected: Message {{row.expectedMessage}} is visible and the form stays open

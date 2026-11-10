@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Appian test-case file",
+  "type": "object",
+  "required": ["scope", "analysis", "dataFile", "testCases"],
+  "properties": {
+    "scope": { "type": "string" },
+    "analysis": { "type": "string", "description": "Path to specs/analysis/<scope>.md" },
+    "dataFile": { "type": "string", "description": "Path to test-data/<scope>.json" },
+    "testCases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "priority", "role", "steps"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z]+-TC\\d{2,}$" },
+          "adoId": { "type": ["integer", "null"] },
+          "title": { "type": "string" },
+          "priority": { "enum": ["P1", "P2", "P3"] },
+          "tags": { "type": "array", "items": { "type": "string", "pattern": "^@" } },
+          "role": { "type": "string" },
+          "covers": { "type": "array", "items": { "type": "string" }, "description": "Analysis scenario IDs" },
+          "dataSet": { "type": ["string", "null"], "description": "Key in dataFile; null = not data-driven" },
+          "preconditions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["description"],
+              "properties": {
+                "description": { "type": "string" },
+                "setup": { "enum": ["api", "ui", "existing"] }
+              }
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "action"],
+              "properties": {
+                "type": { "enum": ["Given", "When", "Then", "And"] },
+                "action": { "type": "string", "description": "Business language with exact UI labels; may reference {{row.field}}" },
+                "expected": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "playwright-e2e",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Playwright E2E framework authored with the playwright-test-author Copilot agent",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:data": "playwright test --grep @data-driven",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "agents:drift": "node scripts/check-agent-drift.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.6.0"
+  }
+}
